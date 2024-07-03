@@ -1356,13 +1356,21 @@ class HBSDMIRRORFCDriverTest(test.TestCase):
     def test_update_migrated_volume_replication(self, request):
         request.side_effect = [FakeResponse(200, GET_LDEV_RESULT_REP),
                                FakeResponse(202, COMPLETED_SUCCEEDED_RESULT),
+                               FakeResponse(200, GET_LDEV_RESULT_REP),
+                               FakeResponse(202, COMPLETED_SUCCEEDED_RESULT),
                                FakeResponse(202, COMPLETED_SUCCEEDED_RESULT)]
-        ret = self.driver.update_migrated_volume(
-            self.ctxt, TEST_VOLUME[0], TEST_VOLUME[4], "available")
-        self.assertEqual(3, request.call_count)
-        actual = ({'_name_id': TEST_VOLUME[4]['id'],
-                   'provider_location': TEST_VOLUME[4]['provider_location']})
-        self.assertEqual(actual, ret)
+        self.assertRaises(
+            NotImplementedError,
+            self.driver.update_migrated_volume,
+            self.ctxt,
+            TEST_VOLUME[0],
+            TEST_VOLUME[4],
+            "available")
+        self.assertEqual(6, request.call_count)
+        original_volume_nickname = TEST_VOLUME[0]['id'].replace("-", "")
+        for i in (4, 5):
+            args, kwargs = request.call_args_list[i]
+            self.assertEqual(kwargs['json']['label'], original_volume_nickname)
 
     def test_unmanage_snapshot(self):
         """The driver don't support unmange_snapshot."""

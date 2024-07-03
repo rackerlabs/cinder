@@ -1177,10 +1177,12 @@ class HBSDCommon():
         """Migrate the specified volume."""
         return False
 
-    def update_migrated_volume(self, new_volume):
-        """Return model update for migrated volume."""
-        return {'_name_id': new_volume.name_id,
-                'provider_location': new_volume.provider_location}
+    def update_migrated_volume(self, volume, new_volume):
+        """Update LDEV settings after generic volume migration."""
+        ldev = self.get_ldev(new_volume)
+        # We do not need to check if ldev is not None because it is guaranteed
+        # that ldev is not None because migration has been successful so far.
+        self.modify_ldev_name(ldev, volume['id'].replace("-", ""))
 
     def retype(self, ctxt, volume, new_type, diff, host):
         """Retype the specified volume."""
