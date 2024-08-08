@@ -1028,23 +1028,6 @@ class HBSDREPLICATION(rest.HBSDREST):
         else:
             return self.rep_primary.migrate_volume(volume, host)
 
-    def update_migrated_volume(self, volume, new_volume):
-        """Update LDEV settings after generic volume migration."""
-        self._require_rep_primary()
-        ldev = self.rep_primary.get_ldev(new_volume)
-        # We do not need to check if ldev is not None because it is guaranteed
-        # that ldev is not None because migration has been successful so far.
-        if self._has_rep_pair(ldev):
-            self._require_rep_secondary()
-            thread = greenthread.spawn(
-                self.rep_secondary.update_migrated_volume, volume, new_volume)
-            try:
-                self.rep_primary.update_migrated_volume(volume, new_volume)
-            finally:
-                thread.wait()
-        else:
-            self.rep_primary.update_migrated_volume(volume, new_volume)
-
     def _resync_rep_pair(self, pvol, svol):
         copy_group_name = self._create_rep_copy_group_name(pvol)
         rep_type = self.driver_info['mirror_attr']

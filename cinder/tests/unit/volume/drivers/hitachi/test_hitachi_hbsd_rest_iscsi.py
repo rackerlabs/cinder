@@ -880,17 +880,12 @@ class HBSDRESTISCSIDriverTest(test.TestCase):
     @mock.patch.object(requests.Session, "request")
     def test_update_migrated_volume(self, request):
         request.return_value = FakeResponse(202, COMPLETED_SUCCEEDED_RESULT)
-        self.assertRaises(
-            NotImplementedError,
-            self.driver.update_migrated_volume,
-            self.ctxt,
-            TEST_VOLUME[0],
-            TEST_VOLUME[1],
-            "available")
-        self.assertEqual(2, request.call_count)
-        args, kwargs = request.call_args_list[1]
-        self.assertEqual(kwargs['json']['label'],
-                         TEST_VOLUME[0]['id'].replace("-", ""))
+        ret = self.driver.update_migrated_volume(
+            self.ctxt, TEST_VOLUME[0], TEST_VOLUME[1], "available")
+        self.assertEqual(1, request.call_count)
+        actual = ({'_name_id': TEST_VOLUME[1]['id'],
+                   'provider_location': TEST_VOLUME[1]['provider_location']})
+        self.assertEqual(actual, ret)
 
     def test_unmanage_snapshot(self):
         """The driver don't support unmange_snapshot."""
