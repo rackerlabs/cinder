@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    NetApp driver `bug #2121791
+    <https://bugs.launchpad.net/cinder/+bug/2121791>`_: Fixed
+    Fixed NVMe over TCP multipath issue
